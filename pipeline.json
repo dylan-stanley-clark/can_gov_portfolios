@@ -1,9 +1,1 @@
-{
-  "version" : 0.1,
-  "globalEnvironmentVariables" : [
-  ],
-  "tasks" : [
-  ],
-  "stages" : [
-  ]
-}
+{"globalEnvironmentVariables":[],"tasks":[{"title":"load_cabinet_tbl","name":"loadCabinetTbl","environmentVariables":["aws_access=test","aws_key=test"],"parameters":["run_type"]}],"stages":[{"name":"loadCabinetTbl:1","parameters":[],"environmentVariables":[],"dependsOn":[],"location":{"x":362,"y":266}}]}
