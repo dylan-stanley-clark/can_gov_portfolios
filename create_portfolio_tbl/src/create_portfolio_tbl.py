@@ -83,8 +83,8 @@ def create_portfolio_df(df,portfolio_tbl):
     df.drop(columns=['Title','Parliament'],inplace=True)
     df.drop_duplicates(inplace=True)
     #load date-time strings as datetime objects
-    df['Start Date'] = pd.to_datetime(df['Start Date'],format='%d-%m-%Y')
-    df['End Date'] = pd.to_datetime(df['End Date'],format='%d-%m-%Y',errors='coerce')
+    df['Start Date'] = pd.to_datetime(df['Start Date'],format='%Y-%m-%d')
+    df['End Date'] = pd.to_datetime(df['End Date'],format='%Y-%m-%d',errors='coerce')
 
     for name in list(df['Name'].unique()):
         #Send df for each unique name in a cabinet
@@ -102,7 +102,7 @@ if __name__ == "__main__":
         #connect to amazon web services S3 bucket
         s3 = boto3.resource(service_name='s3',region_name='ca-central-1',aws_access_key_id=str(os.getenv("aws_access")[1:-1]),aws_secret_access_key=str(os.getenv("aws_key")[1:-1]))
 
-        file_obj = s3.Bucket('polemics').Object("references/PrimeMinisters.csv").get()
+        file_obj = s3.Bucket('polemics').Object("references/ministry_info.csv").get()
         ministry_info = pd.read_csv(io.BytesIO(file_obj['Body'].read()))
 
         file_obj = s3.Bucket('polemics').Object('processed/cabinet_tbl.csv').get()

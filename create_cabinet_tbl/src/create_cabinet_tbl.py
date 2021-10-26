@@ -100,16 +100,31 @@ if __name__ == "__main__":
         # Load proccessed roles table into pandas data frame
         file_obj = s3.Bucket('polemics').Object('processed/clean_roles_tbl.csv').get()
         roles_tbl = pd.read_csv(io.BytesIO(file_obj['Body'].read()))
+        roles_tbl.drop(columns=['Unnamed: 0'],inplace=True)
+
         #Load reference table for cabinent membership status
         file_obj = s3.Bucket('polemics').Object('references/exclusion_role_tbl.csv').get()
         false_cab = pd.read_csv(io.BytesIO(file_obj['Body'].read()))
+        false_cab.drop(columns=['notes'],inplace=True)
+        false_cab['Start Date'] = pd.to_datetime(false_cab['Start Date'], format="%Y-%m-%d", errors='coerce')
+        false_cab['Start Date'] = false_cab['Start Date'].apply(lambda x: x.strftime('%Y/%m/%d'))
+        # print(list(roles_tbl),list(false_cab))
         #exclude select roles that would otherwise be erroneously included
         uid1 = false_cab['Name']+false_cab['Title']+false_cab['Start Date']
         uid2 = roles_tbl['Name']+roles_tbl['Title']+roles_tbl['Start Date']
+
+
         roles_tbl.insert(len(list(roles_tbl)), "uid", uid2, True)
         false_cab.insert(len(list(false_cab)), "uid", uid1, True)
+#
+#         print(uid1[0])
+#         name = false_cab['Name'].to_list()[0]
+#         test_df = roles_tbl[roles_tbl['Name'] == name]
+# =
         common = roles_tbl.merge(false_cab, on=['uid'])
         df = roles_tbl[~roles_tbl['uid'].isin(common['uid'])]
+        print(len(df),len(roles_tbl))
+
         df.drop(columns=['uid'])
         #exclude non-cabinet roles from data frame
         df2 = df[df['Role'].isin(['Minister','Minister (Acting)',
@@ -118,6 +133,7 @@ if __name__ == "__main__":
         #include select roles that were erroneously discluded
         file_obj = s3.Bucket('polemics').Object('references/roles_inclusion_tbl.csv').get()
         true_cab = pd.read_csv(io.BytesIO(file_obj['Body'].read()))
+        true_cab.drop(columns=['notes'],inplace=True)
 
         df2 = df2.append(true_cab, ignore_index=True)
 
@@ -180,7 +196,22 @@ if __name__ == "__main__":
                     district = df5['Constituency'].to_list()[0]
                     province = df5['Province or Territory'].to_list()[0]
                     end = df5['End Date'].to_list()[0]
+                    try:
+                        end = pd.to_datetime(end, format="%Y-%m-%d", errors='coerce')
+                    except:
+                        end = pd.to_datetime(end, format="%Y/%m/%d", errors='coerce')
+                    try:
+                        end = end.strftime('%Y-%m-%d')
+                    except:
+                        pass
                     start = df5['Start Date'].to_list()[0]
+                    try:
+                        start = pd.to_datetime(start, format="%Y-%m-%d", errors='coerce')
+                    except:
+                        start = pd.to_datetime(start, format="%Y/%m/%d", errors='coerce')
+
+                    start = start.strftime('%Y-%m-%d')
+
                     parl = df5['parliament'].to_list()[0]
                     portfolio = list(df5['Portfolio'].unique())
 
