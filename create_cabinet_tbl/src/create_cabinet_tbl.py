@@ -116,11 +116,7 @@ if __name__ == "__main__":
 
         roles_tbl.insert(len(list(roles_tbl)), "uid", uid2, True)
         false_cab.insert(len(list(false_cab)), "uid", uid1, True)
-#
-#         print(uid1[0])
-#         name = false_cab['Name'].to_list()[0]
-#         test_df = roles_tbl[roles_tbl['Name'] == name]
-# =
+
         common = roles_tbl.merge(false_cab, on=['uid'])
         df = roles_tbl[~roles_tbl['uid'].isin(common['uid'])]
         print(len(df),len(roles_tbl))
@@ -130,6 +126,7 @@ if __name__ == "__main__":
         df2 = df[df['Role'].isin(['Minister','Minister (Acting)',
                                   'Minister (Acting Minister)','Secretary of State'])]
 
+
         #include select roles that were erroneously discluded
         file_obj = s3.Bucket('polemics').Object('references/roles_inclusion_tbl.csv').get()
         true_cab = pd.read_csv(io.BytesIO(file_obj['Body'].read()))
@@ -138,9 +135,8 @@ if __name__ == "__main__":
         df2 = df2.append(true_cab, ignore_index=True)
 
         #convert all date to same format (day-month-year)
-        df2.iloc[:,9] = [ convert_date(date) for date in list(df2['Start Date'])]
-        df2.iloc[:,10] = [ convert_date(date) for date in list(df2['End Date'])]
-
+        df2.iloc[:,8] = [ convert_date(date) for date in list(df2['Start Date'])]
+        df2.iloc[:,9] = [ convert_date(date) for date in list(df2['End Date'])]
         #add new columns at end to determine which ministry a role started and ended
         df2.insert(len(list(df2)), "Start Ministry", get_ministry(df2['Start Date']), True)
         df2.insert(len(list(df2)), "End Ministry", get_ministry(df2['End Date'],kind="end"), True)
@@ -195,20 +191,26 @@ if __name__ == "__main__":
                     party = df5['Political Affiliation'].to_list()[0]
                     district = df5['Constituency'].to_list()[0]
                     province = df5['Province or Territory'].to_list()[0]
+
                     end = df5['End Date'].to_list()[0]
+
                     try:
-                        end = pd.to_datetime(end, format="%Y-%m-%d", errors='coerce')
+                        end = pd.to_datetime(end, format="%d-%m-%Y", errors='coerce')
                     except:
-                        end = pd.to_datetime(end, format="%Y/%m/%d", errors='coerce')
+                        end = pd.to_datetime(end, format="%d/%m/%Y", errors='coerce')
+
                     try:
                         end = end.strftime('%Y-%m-%d')
                     except:
                         pass
+
+
                     start = df5['Start Date'].to_list()[0]
+
                     try:
-                        start = pd.to_datetime(start, format="%Y-%m-%d", errors='coerce')
+                        start = pd.to_datetime(start, format="%d-%m-%Y", errors='coerce')
                     except:
-                        start = pd.to_datetime(start, format="%Y/%m/%d", errors='coerce')
+                        start = pd.to_datetime(start, format="%d/%m/%Y", errors='coerce')
 
                     start = start.strftime('%Y-%m-%d')
 

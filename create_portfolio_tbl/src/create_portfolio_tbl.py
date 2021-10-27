@@ -9,7 +9,6 @@ from ast import literal_eval
 
 def create_df(sample,cols):
     #return list of lists for each row for each portfolio held by a position
-
     #load string python list
     try:
         portfolios = literal_eval(sample['Portfolios'])
@@ -26,16 +25,16 @@ def create_df(sample,cols):
 
     #turn list of lists into datframe
     f = pd.DataFrame(data,columns=cols)
-
     return f
+
 def create_portfolio_rows(sample):
     #accepts a dataframe filtered to all roles within a ministry and
     #returns a dataframe of rows of each portofolio held by a cabinet members
     d = pd.DataFrame([], columns=list(sample))
     for row in range(len(sample)):
         d = d.append(create_df(sample.iloc[row,:],cols=list(sample)))
-
     return d
+
 def create_argument_parser():
     """
     Function to add command line arguments at run time
@@ -84,8 +83,9 @@ def create_portfolio_df(df,portfolio_tbl):
     df.drop_duplicates(inplace=True)
     #load date-time strings as datetime objects
     df['Start Date'] = pd.to_datetime(df['Start Date'],format='%Y-%m-%d')
+    print(df['End Date'])
     df['End Date'] = pd.to_datetime(df['End Date'],format='%Y-%m-%d',errors='coerce')
-
+    print(df['End Date'])
     for name in list(df['Name'].unique()):
         #Send df for each unique name in a cabinet
         portfolio_tbl = merge_portfolios(df[df['Name'] == name],portfolio_tbl,name)
