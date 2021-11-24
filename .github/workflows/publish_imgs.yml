@@ -33,8 +33,8 @@ jobs:
         id: docker_build1
         uses: docker/build-push-action@v2
         with:
-          context: ./create_cabinet_tbl/
-          file: ./Dockerfile
+          context: ./
+          file: ./create_cabinet_tbl/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/cabinet_tbl:latest
           
@@ -42,8 +42,8 @@ jobs:
         id: docker_build2
         uses: docker/build-push-action@v2
         with:
-          context: ./create_portfolio_tbl/
-          file: ./Dockerfile
+          context: ./
+          file: ./create_portfolio_tbl/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/portfolio_tbl:latest
           
@@ -51,8 +51,8 @@ jobs:
         id: docker_build3
         uses: docker/build-push-action@v2
         with:
-          context: ./create_roles_tbl/
-          file: ./Dockerfile
+          context: ./
+          file: ./create_roles_tbl/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/role_tbl:latest
                 
