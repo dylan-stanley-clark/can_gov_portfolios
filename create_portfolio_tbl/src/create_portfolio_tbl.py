@@ -42,7 +42,6 @@ def create_argument_parser():
     parser  = argparse.ArgumentParser(description = 'Script to test out pipeline')
     parser.add_argument('--run-type', nargs = '?', required = True, help = 'Command to run task or test')
     return parser
-
 def merge_portfolios(d,df2,name):
     # create list of lists of a collapsed set of portfolio terms held by ministers
     #i.e combine if same ministers holds the same portfolio over 6 years but is split two subsequent terms
@@ -65,33 +64,28 @@ def merge_portfolios(d,df2,name):
                             #if the sitting is split into three
                             #find the frame row number of the matching end-date to get other info
                             index2 = sample['End Date'].to_list().index(sample.iloc[index,5]-timedelta(days=1))
-                            # create list of name, portfolio name, start date, end date, ministry, parliament
                             data2 = [name,portfolio,sample.iloc[index2,5], sample.iloc[i,6]]
                         else:
                             #if the sitting is only split into two
-                            # create list of name, portfolio name, start date, end date, ministry, parliament
-                            data2 = [name,portfolio,sample.iloc[index,5], sample.iloc[i,6],sample.iloc[i,7],sample.iloc[i,10]]
+                            data2 = [name,portfolio,sample.iloc[index,5], sample.iloc[i,6]]
                         df2.append(data2)
 
                     else:
                         #if they are different sittings?
-                        # create list of name, portfolio name, start date, end date, ministry, parliament
-                        data2 = [name,portfolio,sample['Start Date'].tolist()[i], sample['End Date'].tolist()[i],
-                                                        sample['Parliament'].tolist()[i],sample['Ministry'].tolist()[i]]
+                        data2 = [name,portfolio,sample['Start Date'].tolist()[i], sample['End Date'].tolist()[i]]
                         df2.append(data2)
 
     return df2
 
 def create_portfolio_df(df,portfolio_tbl):
     #accepts ministry dataframes with row for each portfolio to create a table of rows of merged portfolio holdings
-    #df.drop(columns=['Title','Parliament'],inplace=True)
-    #look at ministry unique roles only
+    df.drop(columns=['Title','Parliament'],inplace=True)
     df.drop_duplicates(inplace=True)
     #load date-time strings as datetime objects
     df['Start Date'] = pd.to_datetime(df['Start Date'],format='%Y-%m-%d')
-
+    print(df['End Date'])
     df['End Date'] = pd.to_datetime(df['End Date'],format='%Y-%m-%d',errors='coerce')
-
+    print(df['End Date'])
     for name in list(df['Name'].unique()):
         #Send df for each unique name in a cabinet
         portfolio_tbl = merge_portfolios(df[df['Name'] == name],portfolio_tbl,name)
@@ -121,7 +115,7 @@ if __name__ == "__main__":
         for df in data:
             portfolio_tbl = create_portfolio_df(df,portfolio_tbl)
 
-        portfolio_tbl = pd.DataFrame(portfolio_tbl,columns=['Name',"Portfolio","Start","End","Parliament","Ministry"])
+        portfolio_tbl = pd.DataFrame(portfolio_tbl,columns=['Name',"Portfolio","Start","End"])
         portfolio_tbl.drop_duplicates(inplace=True)
 
         s3.Object('polemics', 'processed/portfolio_tbl.csv').put(Body=portfolio_tbl.to_csv())
