@@ -42,7 +42,7 @@ jobs:
         id: docker_build2
         uses: docker/build-push-action@v2
         with:
-          context: ./
+          context: ./create_portfolio_tbl/
           file: ./create_portfolio_tbl/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/portfolio_tbl:latest
