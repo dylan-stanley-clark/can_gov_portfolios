@@ -19,7 +19,7 @@ WORKDIR ./src
 # copy only the dependencies installation from the 1st stage image
 COPY --from=builder /root/.local /root/.local
 #copy everying from src directoryCOPY ./src .
-COPY ./src .
+COPY ./create_cabinet_tbl/src .
 
 # update PATH environment variable
 ENV PATH=/root/.local:$PATH
